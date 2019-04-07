@@ -1,11 +1,7 @@
 public class MyArrayDataException extends Exception {
-    public int i;
-    public int j;
 
-    MyArrayDataException(int i, int j) {
-        super(String.format("Не корректные данные в ячейке: [%s][%s]", i, j));
-        this.i = i;
-        this.j = j;
+    public MyArrayDataException(int i, int j, String value, Throwable caused) {
+        super(String.format("Некорректное значение '%s' в ячейке [%d][%d]", value, i, j), caused);
 
     }
 
