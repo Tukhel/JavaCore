@@ -4,22 +4,22 @@ import java.util.*;
 
 public class Phonebook {
 
-    Map<Integer, String> phonebook = new HashMap<>();
+    private Map<String, Set<String>> phonebook = new HashMap<>();
 
-    public void add(int number, String surname) {
-        phonebook.put(number, surname);
+    public Phonebook() {
+        this.phonebook = new HashMap<>();
     }
 
-    public void get(String surname) {
-        if (phonebook.containsValue(surname)) {
-            Set<Map.Entry<Integer, String>> set = phonebook.entrySet();
-            for (Map.Entry<Integer, String> temp : set) {
-                if (temp.getValue().equals(surname)) {
-                    System.out.println(temp.getValue() + " : " + temp.getKey());
-                }
-            }
-        } else {
-            System.out.printf("Фамилия %s в справочнике не найдена", surname);
+    public void add(String surname, String number) {
+        Set<String> phones = phonebook.get(surname);
+        if (phones == null) {
+            phones = new HashSet<>(0);
+            phonebook.put(surname, phones);
         }
+        phones.add(number);
+    }
+
+    public Set<String> get(String surname) {
+        return phonebook.get(surname);
     }
 }
