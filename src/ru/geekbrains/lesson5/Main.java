@@ -1,80 +1,69 @@
 package ru.geekbrains.lesson5;
 
+import java.util.Arrays;
+
 public class Main {
 
-    static final int SIZE = 10000000;
-    static final int H = SIZE /2;
+    static final int SIZE = 10_000_000;
+    static final int THREAD_COUNT = 2;
 
-    public static void main(String[] args) {
-        Main e1 = new Main();
-        e1.method1();
-        e1.method2();
-    }
-
-    public void method1 () {
-
-        float[] arr = new float[SIZE];
-
-        for(int i = 0; i<arr.length; i++) {
-            arr[i]=1;
-        }
-
-        long startTime = System.currentTimeMillis();
-        for(int i = 0; i<arr.length; i++) {
-            arr[i]=(float)(arr[i] * Math.sin(0.2f+ i/5)* Math.cos(0.2f+ i/5) * Math.cos(0.4f + i/2));
-        }
-        long finishtime = System.currentTimeMillis();
-
-        System.out.println("Время выполнения метода 1 : " + (finishtime - startTime));
-
-    }
-
-    public void method2 () {
-
-        float[] arr = new float[SIZE];
-        float[] a1 = new float[H];
-        float[] a2 = new float[H];
-
+    static void calcuate (float[] arr, int shift) {
         for (int i = 0; i < arr.length; i++) {
-            arr[i] = 1;
+            int ix = i + shift;
+            arr[i] = (float) (arr[i] * Math.sin(0.2f+ ix/5)*
+                    Math.cos(0.2f+ ix/5) * Math.cos(0.4f + ix/2));
+        }
+    }
+
+    static class CalculateRunnable implements Runnable {
+
+        private final float[] arr;
+        private final int shift;
+
+        public CalculateRunnable(float[] arr, int shift) {
+            this.arr = arr;
+            this.shift = shift;
         }
 
-        long startTime = System.currentTimeMillis();
-        System.arraycopy(arr,0,a1,0, H);
-        System.arraycopy(arr, H,a2,0, H);
+        @Override
+        public void run() {
+            calcuate(arr, shift);
+        }
+    }
 
-        Thread cal1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i<a1.length; i++) {
-                    a1[i]=(float)(a1[i] * Math.sin(0.2f+ i/5)* Math.cos(0.2f+ i/5) * Math.cos(0.4f + i/2));
-                }
-            }
-        });
-        cal1.start();
+    public static void main(String[] args) throws InterruptedException{
+        float[] data = new float[SIZE];
+        Arrays.fill(data, 1.0f);
 
-        Thread cal2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i<a2.length; i++) {
-                    a2[i]=(float)(a2[i] * Math.sin(0.2f+ i/5)* Math.cos(0.2f+ i/5) * Math.cos(0.4f + i/2));
-                }
-            }
-        });
-        cal2.start();
+        long startTime;
+        startTime = System.currentTimeMillis();
 
-        try {
-            cal1.join();
-            cal2.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        calcuate(data, 0);
+
+        System.out.println("Время выполнения метода 1 : " + (System.currentTimeMillis() - startTime));
+
+        int partSize = SIZE / THREAD_COUNT;
+        float[][] parts = new float[THREAD_COUNT][partSize];
+
+        startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            System.arraycopy(data, partSize * i, parts[i], 0, partSize);
         }
 
-        System.arraycopy(a1, 0, arr, 0, H);
-        System.arraycopy(a2, 0, arr, H, H);
+        Thread[] threads = new Thread[THREAD_COUNT];
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            threads[i] = new Thread(new CalculateRunnable(parts[i], partSize * i));
+            threads[i].start();
+        }
 
-        long finishtime = System.currentTimeMillis();
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            threads[i].join();
+        }
 
-        System.out.println("Время выполнения метода 2 : " + (finishtime - startTime));
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            System.arraycopy(parts[i], 0, data, partSize * i, partSize);
+        }
+        System.out.println("Время выполнения метода 2 : " + (System.currentTimeMillis() - startTime));
     }
 }
