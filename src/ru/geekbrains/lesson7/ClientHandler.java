@@ -29,7 +29,7 @@ public class ClientHandler {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
                         String msg = inp.readUTF();
-                        System.out.printf("Message from user %s: %s%n", login, msg);
+                        System.out.printf("Сообщение от пользователя %s: %s%n", login, msg);
 
                         // TODO проверить является ли msg сообщением для пользователя
                         // TODO если да, то переслать это сообщение пользователю

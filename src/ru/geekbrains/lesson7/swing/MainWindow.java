@@ -1,8 +1,11 @@
 package ru.geekbrains.lesson7.swing;
 
+import ru.geekbrains.lesson7.ClientHandler;
 import ru.geekbrains.lesson7.MessageReciever;
 import ru.geekbrains.lesson7.Network;
 import ru.geekbrains.lesson7.TextMessage;
+import ru.geekbrains.lesson7.auth.AuthService;
+import ru.geekbrains.lesson7.auth.AuthServiceImpl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,16 +22,18 @@ public class MainWindow extends JFrame implements MessageReciever {
 
     private final JScrollPane scroll;
 
-    private final JPanel sendMessagePanel;
+    private final JPanel sendMessagePanel, userPanel;
 
     private final JButton sendButton;
 
-    private final JTextField messageField;
+    private final JTextField messageField, userNameField;
+
+    private final JTextArea userName;
 
     private final Network network;
 
     public MainWindow() {
-        setTitle("Application");
+        setTitle("Чат");
         setBounds(200,200, 500, 500);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -51,9 +56,10 @@ public class MainWindow extends JFrame implements MessageReciever {
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String userTo = userNameField.getText();
                 String text = messageField.getText();
                 if (text != null && !text.trim().isEmpty()) {
-                    TextMessage msg = new TextMessage(network.getLogin(), "ivan", text);
+                    TextMessage msg = new TextMessage(network.getLogin(), userTo, text);
                     messageListModel.add(messageListModel.size(), msg);
                     messageField.setText(null);
 
@@ -64,7 +70,13 @@ public class MainWindow extends JFrame implements MessageReciever {
         });
         sendMessagePanel.add(sendButton, BorderLayout.EAST);
         messageField = new JTextField();
+        userNameField = new JTextField(30);
+        userPanel = new JPanel();
+        userName = new JTextArea("Отправить личное сообщение:");
+        sendMessagePanel.add(userPanel, BorderLayout.NORTH);
         sendMessagePanel.add(messageField, BorderLayout.CENTER);
+        userPanel.add(userName, BorderLayout.WEST);
+        userPanel.add(userNameField, BorderLayout.CENTER);
 
         add(sendMessagePanel, BorderLayout.SOUTH);
         setVisible(true);

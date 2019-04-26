@@ -24,12 +24,12 @@ public class ChatServer {
 
     private void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started!");
+            System.out.println("Сервер ждет подключения....");
             while (true) {
                 Socket socket = serverSocket.accept();
                 DataInputStream inp = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                System.out.println("New client connected!");
+                System.out.println("Подключен новый клиент");
 
                 User user = null;
                 try {
@@ -72,6 +72,8 @@ public class ChatServer {
 
     public void sendMessage(String userTo, String userFrom, String msg) {
         ClientHandler userToClientHandler = clientHandlerMap.get(userTo);
+
+
         // TODO убедиться, что userToClientHandler существует и отправить сообщение
         // TODO для отправки сообщения нужно вызвать метод userToClientHandler.sendMessage()
     }
