@@ -1,6 +1,5 @@
 package ru.geekbrains.lesson7.swing;
 
-
 import ru.geekbrains.lesson7.AuthException;
 import ru.geekbrains.lesson7.Network;
 
