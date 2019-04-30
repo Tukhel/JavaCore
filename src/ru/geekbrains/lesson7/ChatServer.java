@@ -82,6 +82,15 @@ public class ChatServer {
         }
     }
 
+    private void sendUserDisconnectMessage(String login) throws IOException {
+        for (ClientHandler clientHandler : clientHandlerMap.values()) {
+            if (clientHandler.getLogin().equals(login)) {
+                System.out.printf("Sending disconnect notification to %s about %s%n", clientHandler.getLogin(), login);
+                clientHandler.sendDisconnectedMessage(login);
+            }
+        }
+    }
+
     public void sendMessage(TextMessage msg) throws IOException {
         ClientHandler userToClientHandler = clientHandlerMap.get(msg.getUserTo());
         if (userToClientHandler != null) {
@@ -92,13 +101,21 @@ public class ChatServer {
     }
 
     public void subscribe(String login, Socket socket) throws IOException {
+
         // TODO Проверить, подключен ли уже пользователь. Если да, то отправить клиенту ошибку
         clientHandlerMap.put(login, new ClientHandler(login, socket, this));
         sendUserConnectedMessage(login);
     }
 
-    public void unsubscribe(String login) {
+    public void unsubscribe(String login) throws IOException{
+        for (ClientHandler clientHandler : clientHandlerMap.values()) {
+            if (clientHandler.getLogin().equals(login)) {
+                System.out.printf("Err", clientHandler.getLogin(), login);
+                clientHandler.sendDisconnectedMessage(login);
+            }
+        }
         clientHandlerMap.remove(login);
+        sendUserDisconnectMessage(login);
         // TODO Отправить всем подключенным пользователям сообщение, что данный пользователь отключился
     }
 }
